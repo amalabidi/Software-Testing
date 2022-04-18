@@ -19,7 +19,7 @@ const DB_USER = process.env.DB_USER;
 const DB_PASSWORD = process.env.DB_PASSWORD;
 mongoose
     .connect(
-        `mongodb+srv://amalabidi:amalabidi@cluster0.a2ly8.mongodb.net/test`, {
+        `mongodb+srv://***:**@cluster0.a2ly8.mongodb.net/test`, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
         }
