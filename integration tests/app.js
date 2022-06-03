@@ -1,42 +1,52 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const users = require("./routes/users");
-const projects = require("./routes/projects");
-const collaborators = require("./routes/collaborators");
-const login = require("./routes/authentification");
-const app = express();
-let bodyParser = require("body-parser");
+var express = require("express");
+var cors = require("cors");
+
+var updateSpace = require("./routes/UpdateSpace");
+var dotenv = require("dotenv");
+var mongoose = require("mongoose");
+
+var usersRouter = require("./routes/users");
+var reservationsRouter = require("./routes/reservations");
+var spacesRouter = require("./routes/spaces");
+var eventsRouter = require("./routes/events");
+var reviewsRouter = require("./routes/reviews");
+var paymentInfoRouter = require("./routes/paymentInfo");
+var app = express();
+app.use(cors());
+dotenv.config();
+
 app.use(express.json());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.text());
-app.use(bodyParser.json({ type: "application/json" }));
+app.use(express.urlencoded({ extended: false }));
 
-// connecting to mongodb
+app.use("/user", usersRouter);
+app.use("/spaces", spacesRouter);
+app.use("/events", eventsRouter);
+app.use("/paymentInfo", paymentInfoRouter);
+app.use("/reservations", reservationsRouter);
+app.use("/updateSpace", updateSpace);
 
-/*'mongodb+srv://flutter-team:flutter-junior@cluster0.o7rlv.mongodb.net/flutter_ecommerce_project' */
-const DB_USER = process.env.DB_USER;
-const DB_PASSWORD = process.env.DB_PASSWORD;
+app.use("/review", reviewsRouter);
+app.use("/uploads", express.static("uploads"));
+
+// error handler
+app.use(function(err, req, res) {
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get("env") === "development" ? err : {};
+
+    // render the error page
+    res.status(err.status || 500);
+    res.render("error");
+});
+const PORT = process.env.PORT || 5000;
 mongoose
-    .connect(
-        `mongodb+srv://***:**@cluster0.a2ly8.mongodb.net/test`, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        }
-    )
-    .then(() => console.log("connected to mongodb successfully"))
+    .connect(`mongodb+srv://amal:amalamal@cluster0.d62xefd.mongodb.net/test`, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+    })
+    .then(() => console.log("connected to mongodb successfully "))
     .catch((err) => console.log("couldnt connect to mongodb" + err));
 
-//delegating a router to a given url
-// all request to /api/categories will be handled by the categories router
-
-app.use("/users", users);
-app.use("/projects", projects);
-app.use("/collab", collaborators);
-app.use("/login", login);
-//choose the backend port
-const port = process.env.PORT || 3001;
-
-//starting the backend server
-app.listen(port, () => console.log("listening on port:" + port));
+mongoose.set("useFindAndModify", false);
+app.listen(PORT, () => console.log("listening on port:" + PORT));
 module.exports = app;

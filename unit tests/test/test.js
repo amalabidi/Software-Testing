@@ -4,7 +4,7 @@ let chaiHttp = require("chai-http");
 let server = require("../app");
 let should = chai.should();
 chai.use(chaiHttp);
-const { User } = require("../modules/user");
+const { User } = require("../models/User");
 
 describe("/POST user", () => {
     it("it should not create a user without email address", (done) => {
@@ -15,7 +15,7 @@ describe("/POST user", () => {
         });
         chai
             .request(server)
-            .post("/users")
+            .post("/user/signup")
             .type("json")
             .send(user)
             .end((err, res) => {
@@ -28,36 +28,78 @@ describe("/POST user", () => {
     });
     it("it should not create a user with an  email already existing", (done) => {
         let user = new User({
-            username: "Amal",
             password: "hahahha",
-            email: "kjljl",
+            email: "joee@gmail.com",
             address: "jjj",
+            username: "hehe",
         });
         chai
             .request(server)
-            .post("/users")
+            .post("/user/signup")
             .type("json")
             .send(user)
             .end((err, res) => {
                 res.should.have.status(200);
                 res.body.should.be.a("object");
-                res.body.should.have.property("errors");
-                res.body.errors.should.be.eql("email already exists");
+                res.body.should.have.property("error");
+                res.body.error.should.be.eql("Email exists already !");
+                done();
+            });
+    });
+    it("it should not create a user with a username already existing", (done) => {
+        let user = new User({
+            username: "joee",
+            password: "hahahha",
+            email: "amalll@gmail.com",
+            address: "jjj",
+        });
+        chai
+            .request(server)
+            .post("/user/signup")
+            .type("json")
+            .send(user)
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a("object");
+                res.body.should.have.property("error");
+                res.body.error.should.be.eql("Username exists already !");
                 done();
             });
     });
 
+    it("it should not create a user with a username and an email already existing", (done) => {
+        let user = new User({
+            username: "joee",
+            password: "hahahha",
+            email: "joee@gmail.com",
+            address: "jjj",
+        });
+        chai
+            .request(server)
+            .post("/user/signup")
+            .type("json")
+            .send(user)
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a("object");
+                res.body.should.have.property("error");
+                res.body.error.should.be.eql("Username and Email exist already !");
+                done();
+            });
+    });
     it("it should create a user ", (done) => {
         let user = new User({
-            username: "Amal",
-            hashedPassword: "hahahha",
-            email: "kiolmm",
+            email: "Emiliee@gmail.com",
+            username: "emiliee",
+            password: "hahahha",
+
             address: "jjj",
         });
 
         chai
+
             .request(server)
-            .post("/users")
+            .post("/user/signup")
             .type("json")
             .send(user)
             .end((err, res) => {
@@ -65,9 +107,9 @@ describe("/POST user", () => {
 
                 res.body.should.be.a("object");
 
-                res.body.should.have.property("user");
+                res.body.should.have.property("success");
 
-                res.body.user.should.have.property("username");
+                res.body.success.should.be.eql("done");
                 done();
             });
     });
@@ -77,7 +119,7 @@ describe("/GET user", () => {
     it("it should GET all the users", (done) => {
         chai
             .request(server)
-            .get("/users")
+            .get("/user")
             .end((err, res) => {
                 res.should.have.status(200);
                 res.body.should.be.a("array");
@@ -86,47 +128,98 @@ describe("/GET user", () => {
             });
     });
 });
-
-describe("/PUT user", () => {
-    it("it should update a user given an id", (done) => {
-        let Newuser = new User({
-            email: "doe@email.com",
-            username: "doe hello",
-            hashedPassword: "pass",
-        });
-        id = "625871670bde2b3638d7fd0b";
-
-        chai
-            .request(server)
-            .put("/users/" + id)
-            .type("json")
-            .send({
-                email: "doe@email.com",
-                username: "doe hello",
-                hashedPassword: "pass",
-            })
-            .end((err, res) => {
-                res.should.have.status(200);
-                res.body.should.be.a("object");
-                res.body.should.have.property("message").eql("User updated");
-                res.body.user.should.have.property("email").eql("doe@email.com");
-                done();
-            });
-    });
-});
-
 describe("/DELETE/:id user", () => {
     it("it should delete a user given an id", (done) => {
-        id = "62587132d8c3f12f5c8b9026";
+        id = "6298eb931f7c6d1ba8214fe7";
 
         chai
             .request(server)
-            .delete("/users/" + id)
+            .delete("/user/" + id)
             .type("json")
             .end((err, res) => {
                 res.should.have.status(200);
                 res.body.should.be.a("object");
                 res.body.should.have.property("message").eql("User deleted");
+                done();
+            });
+    });
+});
+
+describe("/PUT user", () => {
+    it("it should throw an error when the username exists", (done) => {
+        chai
+            .request(server)
+            .put("/user/update")
+            .type("json")
+            .send({
+                email: "doe@email.com",
+                username: "joe",
+                address: "pass",
+                password: "hahahha",
+                _id: "6298f1f080e4903dc898ca92",
+            })
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.have.property("error").eql("Username already exists");
+
+                done();
+            });
+    });
+    it("it should throw an error when the email exists", (done) => {
+        chai
+            .request(server)
+            .put("/user/update")
+            .type("json")
+            .send({
+                email: "joe@gmail.com",
+                username: "doe hello",
+                address: "pass",
+                password: "hahahha",
+                _id: "6298f1f080e4903dc898ca92",
+            })
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.have.property("error").eql("Email already exists");
+
+                done();
+            });
+    });
+    it("it should throw an error when the password is incorrect", (done) => {
+        chai
+            .request(server)
+            .put("/user/update")
+            .type("json")
+            .send({
+                email: "dthoy@email.com",
+                username: "dooople hello",
+                address: "pass",
+                password: "haahha",
+                _id: "6298f1f080e4903dc898ca92",
+            })
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a("object");
+                res.body.should.have.property("error").eql("Incorrect Password  !");
+                done();
+            });
+    });
+    it("it should update the user given an id", (done) => {
+        chai
+            .request(server)
+            .put("/user/update")
+            .type("json")
+            .send({
+                email: "doo@email.com",
+                username: "doo hello",
+                address: "pass",
+                password: "hahahha",
+                _id: "6298f1f080e4903dc898ca92",
+            })
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a("object");
+                res.body.should.have.property("success");
+                res.body.success.should.have.property("email");
                 done();
             });
     });
