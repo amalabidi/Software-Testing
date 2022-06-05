@@ -1,7 +1,5 @@
 # Software-Testing
 
-The Book Shop is an application that manages books!
-
 The project is an application that gives the possibility to users to consult workspaces and  reserve a place .It has a basic Frontend/Backend application with basic CRUD 
 features. The main focus is to apply all different test levels .
 We will be performing 4 levels of tests:
