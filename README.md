@@ -11,8 +11,12 @@ We will be performing 4 levels of tests:
 -System Tests
 -Acceptance Tests
 ## Unit tests
+- Code Found in backend/test/unit tests
+
 ![unit](https://user-images.githubusercontent.com/62261901/172071660-7dfdaed7-7953-405b-ac11-c873f55e7081.PNG)
 ## Integration tests
+- Code Found in backend/test/integration tests
+- 
 ![integration](https://user-images.githubusercontent.com/62261901/172071675-45388a12-14c1-4b12-bc65-8f1ebe6d86f0.PNG)
 ## System tests
 I used Cypress to do an End-to-End test for the whole application.
